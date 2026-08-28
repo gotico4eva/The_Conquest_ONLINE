@@ -1,0 +1,5 @@
+# Build/ is served from CDN (cdn.vitalinsights.com.au, Cloudflare R2), not
+# GitHub Pages — WebGL.data outgrew GitHub Pages' Git-LFS serving ceiling
+# (150MB+, 503 on every fresh fetch). See CLAUDE.md 29/08/2026. Redeploy =
+# upload these 4 files to the R2 bucket, not a git commit.
+Build/

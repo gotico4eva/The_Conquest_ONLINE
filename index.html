@@ -51,7 +51,10 @@
         updateBannerVisibility();
       }
 
-      var buildUrl = "Build";
+      // Build files are hosted on Cloudflare R2 (cdn.vitalinsights.com.au), not
+      // GitHub Pages: WebGL.data outgrew GitHub Pages' Git-LFS serving ceiling
+      // (150MB+, consistent 503 on every fresh fetch) — see CLAUDE.md 29/08/2026.
+      var buildUrl = "https://cdn.vitalinsights.com.au/Build";
       var loaderUrl = buildUrl + "/WebGL.loader.js";
       var config = {
         arguments: [],
