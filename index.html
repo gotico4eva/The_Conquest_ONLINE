@@ -100,9 +100,15 @@
         document.querySelector("#unity-container").className = "unity-mobile";
         canvas.className = "unity-mobile";
 
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
+        // Lowered 31/08/2026 (real report: "my phone is going super hot when
+        // playing it on safari") — on a Retina/Super-Retina iPhone,
+        // devicePixelRatio is 2-3x, so leaving this unset had the WebGL canvas
+        // rendering at up to 9x the necessary pixel count (every fragment
+        // shader, including the per-pixel hex-tile shader, running that many
+        // more times per frame) for a visual gain that barely matters on a
+        // strategy board game read at arm's length. Capping to 1 is Unity's
+        // own documented mitigation for exactly this symptom.
+        config.devicePixelRatio = 1;
 
 
       } else {
