@@ -108,7 +108,23 @@
         // more times per frame) for a visual gain that barely matters on a
         // strategy board game read at arm's length. Capping to 1 is Unity's
         // own documented mitigation for exactly this symptom.
-        config.devicePixelRatio = 1;
+        //
+        // 03/09/2026: this was a hardcoded 1 with no way to test the actual
+        // heat-vs-sharpness tradeoff without a rebuild. Now reads a value the
+        // in-game Settings screen writes to localStorage (BrowserFullscreen.jslib's
+        // SetDprCapHundreds/GetDprCapHundreds) -- defaults to 1x here if nothing's
+        // been saved yet, same as before. Changing it in-game only takes effect
+        // after a reload (this script only runs once, at boot, before Unity's
+        // WebGL context exists), which is why the Settings control there also
+        // offers a "reload now" button.
+        var savedDprCap = 1;
+        try {
+          var raw = parseFloat(localStorage.getItem('conquest_dpr_cap'));
+          if (isFinite(raw) && raw > 0) {
+            savedDprCap = raw;
+          }
+        } catch (e) {}
+        config.devicePixelRatio = savedDprCap;
 
 
       } else {
