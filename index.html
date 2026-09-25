@@ -170,14 +170,29 @@
         // after a reload (this script only runs once, at boot, before Unity's
         // WebGL context exists), which is why the Settings control there also
         // offers a "reload now" button.
-        var savedDprCap = 1;
+        //
+        // 25/09/2026: default is 1.5x now, and every phone is moved to 1.5x once
+        // (the "conquest_dpr_v2" flag), even if 1x was saved before. The HUD is
+        // laid out in canvas pixels; at 1x a landscape iPhone only gives it 393
+        // pixels of height, and its panels simply didn't fit (Lucas: "unplayable
+        // in the phone"). The heat reason for 1x no longer applies: the game now
+        // draws the 3D board at the same 1x pixel count whatever this is
+        // (GraphicsOptions.Apply in the client) and only the HUD uses the extra
+        // pixels. Keep this default in sync with BrowserFullscreen.jslib's
+        // GetDprCapHundreds. Never above the device's real ratio: that would
+        // render more pixels than the screen has.
+        var savedDprCap = 1.5;
         try {
+          if (localStorage.getItem('conquest_dpr_v2') !== '1') {
+            localStorage.setItem('conquest_dpr_cap', '1.5');
+            localStorage.setItem('conquest_dpr_v2', '1');
+          }
           var raw = parseFloat(localStorage.getItem('conquest_dpr_cap'));
           if (isFinite(raw) && raw > 0) {
             savedDprCap = raw;
           }
         } catch (e) {}
-        config.devicePixelRatio = savedDprCap;
+        config.devicePixelRatio = Math.min(savedDprCap, window.devicePixelRatio || 1);
 
 
       } else {
