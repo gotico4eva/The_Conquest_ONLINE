@@ -6,6 +6,14 @@
     <title>Unity Web Player | The_Conquest_Client</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <!-- Viewport is declared up front now (25/09/2026), not injected by script after the
+         page starts laying out. The old injected version also carried
+         "height=device-height" and "shrink-to-fit=yes": on iOS device-height is ALWAYS the
+         portrait height, so after rotating to landscape the page was taller than the
+         screen and Safari scrolled it. The picture moved up but taps were still mapped
+         as if it hadn't, so every button had to be pressed below where it was drawn
+         (Lucas, iPhone, home-screen app). Desktop browsers ignore this tag. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -93,12 +101,57 @@
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile device style: fill the whole browser client area with the game canvas:
 
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
+        document.documentElement.className = "unity-mobile-page";
         document.querySelector("#unity-container").className = "unity-mobile";
         canvas.className = "unity-mobile";
+
+        // Keep the game pinned to the real screen after every rotation (25/09/2026).
+        // iOS (Safari and home-screen apps alike) reports stale sizes DURING the
+        // rotation animation and can leave the page scrolled afterwards — the canvas is
+        // then drawn shifted up while taps still land where the buttons "should" be.
+        // So after any resize/rotation: size the container to the actual inner window
+        // in pixels and undo any scroll, then repeat a few times until the rotation
+        // has settled. Unity follows the canvas's DOM size by itself every frame.
+        // Skipped while a text field has focus (typing a room code): the on-screen
+        // keyboard scrolls the page on purpose, and fighting it would hide the field.
+        var container = document.querySelector("#unity-container");
+        var fitTimers = [];
+        function isTyping() {
+          var el = document.activeElement;
+          return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
+        }
+        function fitToScreen() {
+          if (isTyping()) {
+            return;
+          }
+          var w = Math.round(window.innerWidth);
+          var h = Math.round(window.innerHeight);
+          if (w > 0 && h > 0) {
+            container.style.width = w + "px";
+            container.style.height = h + "px";
+          }
+          if (window.scrollX || window.scrollY) {
+            window.scrollTo(0, 0);
+          }
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+        }
+        function scheduleFit() {
+          fitToScreen();
+          for (var i = 0; i < fitTimers.length; i++) {
+            clearTimeout(fitTimers[i]);
+          }
+          fitTimers = [setTimeout(fitToScreen, 150), setTimeout(fitToScreen, 500), setTimeout(fitToScreen, 1000)];
+        }
+        window.addEventListener("resize", scheduleFit);
+        window.addEventListener("orientationchange", scheduleFit);
+        window.addEventListener("pageshow", scheduleFit);
+        document.addEventListener("focusout", scheduleFit);
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener("resize", scheduleFit);
+          window.visualViewport.addEventListener("scroll", scheduleFit);
+        }
+        fitToScreen();
 
         // Lowered 31/08/2026 (real report: "my phone is going super hot when
         // playing it on safari") — on a Retina/Super-Retina iPhone,
