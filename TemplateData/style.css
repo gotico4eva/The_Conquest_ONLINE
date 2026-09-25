@@ -1,9 +1,18 @@
 body { padding: 0; margin: 0 }
 #unity-container { position: absolute }
 #unity-container.unity-desktop { left: 50%; top: 50%; transform: translate(-50%, -50%) }
-#unity-container.unity-mobile { position: fixed; width: 100%; height: 100% }
+#unity-container.unity-mobile { position: fixed; left: 0; top: 0; width: 100%; height: 100% }
 #unity-canvas { background: #231F20 }
-.unity-mobile #unity-canvas { width: 100%; height: 100% }
+/* display:block (25/09/2026): a canvas is inline by default, which adds a few pixels of
+   text-baseline space under it. That made the mobile page slightly taller than the
+   screen, i.e. scrollable, and a scrolled page is exactly what shifted the picture away
+   from where taps land. touch-action:none stops the browser from panning/zooming the
+   page on drags over the game. */
+.unity-mobile #unity-canvas { display: block; width: 100%; height: 100%; touch-action: none }
+/* The page itself can never scroll on mobile; the dark background also fills the side
+   strips iOS leaves around the notch in landscape (it used to be white). */
+html.unity-mobile-page, html.unity-mobile-page body { width: 100%; height: 100%; overflow: hidden; overscroll-behavior: none; background: #231F20 }
+html.unity-mobile-page body { position: fixed; left: 0; top: 0 }
 #unity-loading-bar { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: none }
 #unity-logo { width: 154px; height: 130px; background: url('unity-logo-dark.png') no-repeat center }
 #unity-progress-bar-empty { width: 141px; height: 18px; margin-top: 10px; margin-left: 6.5px; background: url('progress-bar-empty-dark.png') no-repeat center }
