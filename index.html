@@ -63,9 +63,14 @@
       // GitHub Pages: WebGL.data outgrew GitHub Pages' Git-LFS serving ceiling
       // (150MB+, consistent 503 on every fresh fetch) — see CLAUDE.md 29/08/2026.
       var buildUrl = "https://cdn.vitalinsights.com.au/Build";
-      var loaderUrl = buildUrl + "/WebGL.loader.js";
+      // Loader sempre fresco (26/09/2026): o navegador reaproveitava um WebGL.loader.js antigo
+      // do cache HTTP (sem o descompressor) contra arquivos novos comprimidos — "Failed to parse
+      // binary data file ... still gzip-compressed". O resto passa pelo cache do Unity, que
+      // revalida pelo ETag a cada abertura (cacheControl abaixo): baixa de novo só o que mudou.
+      var loaderUrl = buildUrl + "/WebGL.loader.js?v=" + Date.now();
       var config = {
         arguments: [],
+        cacheControl: function (url) { return "must-revalidate"; },
         dataUrl: buildUrl + "/WebGL.data",
         frameworkUrl: buildUrl + "/WebGL.framework.js",
         codeUrl: buildUrl + "/WebGL.wasm",
