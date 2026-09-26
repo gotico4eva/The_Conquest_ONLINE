@@ -72,7 +72,11 @@
         arguments: [],
         cacheControl: function (url) { return "must-revalidate"; },
         dataUrl: buildUrl + "/WebGL.data",
-        frameworkUrl: buildUrl + "/WebGL.framework.js",
+        // ?v= também aqui (26/09/2026): o loader novo baixa o framework via fetch com CORS, mas
+        // a Cloudflare guardava a versão pedida pelo loader antigo como <script> (sem o header
+        // Access-Control-Allow-Origin) e devolvia essa → erro de CORS. Endereço novo a cada
+        // abertura nunca bate nessa cópia; o arquivo é pequeno.
+        frameworkUrl: buildUrl + "/WebGL.framework.js?v=" + Date.now(),
         codeUrl: buildUrl + "/WebGL.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
