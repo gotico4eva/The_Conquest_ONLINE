@@ -93,6 +93,16 @@
         productName: "The_Conquest_Client",
         productVersion: "0.1.0",
         showBanner: unityShowBanner,
+        // 01/10/2026 (Lucas, iPhone Safari): tapping Safari's own Share icon threw a
+        // one-time "script error" popup with a Close button, the very first tap per page
+        // load, whether the game had finished loading or not — Close still leaves Add to
+        // Home Screen etc. working fine right after. Best-reasoned cause: Safari tries to
+        // snapshot the page (including the WebGL <canvas>) for the share-sheet link
+        // preview, and Unity's default WebGL context doesn't keep the previous frame's
+        // buffer around for readback (preserveDrawingBuffer defaults to false, the
+        // cheaper choice). Turning it on lets that snapshot actually read real pixels
+        // instead of failing.
+        preserveDrawingBuffer: true,
         // errorHandler: function(err, url, line) {
         //    alert("error " + err + " occurred at line " + line);
         //    // Return 'true' if you handled this error and don't want Unity
