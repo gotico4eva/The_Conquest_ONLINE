@@ -3,8 +3,18 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | The_Conquest_Client</title>
+    <title>The Conquest</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <!-- Instalar na tela inicial (30/09/2026): no iPhone, Compartilhar → "Adicionar à Tela de
+         Início" abre o jogo em tela cheia, sem as barras do Safari — some a faixa de cima
+         que engolia toques e sobra mais tela. Android/Chrome usa o manifest. -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="The Conquest">
+    <meta name="theme-color" content="#0e0b10">
     <link rel="stylesheet" href="TemplateData/style.css">
     <!-- Viewport is declared up front now (25/09/2026), not injected by script after the
          page starts laying out. The old injected version also carried
