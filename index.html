@@ -310,6 +310,34 @@
       if (!conquestGl) {
         conquestFail("WebGL not supported");
       } else {
+        // Ponteiro de versão (29/10/2026): o WebGL release (publish) sobe cada build numa pasta própria
+        // Build/<versão>/ e aponta Build/current.json pra ela; o rollback só reescreve o ponteiro. Sem
+        // ponteiro, ponteiro quebrado, lento (5 s) ou fora do nosso CDN, carrega o Build/ plano de sempre.
+        conquestBuildPointer().then(function (base) {
+          if (base) {
+            buildUrl = base;
+            loaderUrl = base + "/WebGL.loader.js?v=" + Date.now();
+            config.dataUrl = base + "/WebGL.data";
+            config.frameworkUrl = base + "/WebGL.framework.js?v=" + Date.now();
+            config.codeUrl = base + "/WebGL.wasm";
+          }
+          conquestStartLoader();
+        });
+      }
+
+      function conquestBuildPointer() {
+        var slow = new Promise(function (resolve) { setTimeout(function () { resolve(null); }, 5000); });
+        var pointer = fetch(buildUrl + "/current.json?t=" + Date.now(), { cache: "no-store" })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (j) {
+            var u = j && j.buildUrl;
+            return (typeof u === "string" && u.indexOf(buildUrl + "/") === 0) ? u.replace(/\/+$/, "") : null;
+          })
+          .catch(function () { return null; });
+        return Promise.race([pointer, slow]);
+      }
+
+      function conquestStartLoader() {
         var script = document.createElement("script");
         script.src = loaderUrl;
         script.onerror = function () { conquestFail("Network: failed to load " + loaderUrl.split("?")[0]); };
