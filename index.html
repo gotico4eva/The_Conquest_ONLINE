@@ -8,10 +8,10 @@
          redes) — o link colado mostra o emblema e o nome, não uma caixa vazia. A imagem precisa de endereço absoluto. -->
     <meta name="description" content="The Conquest: a strategy board game for 1 to 6 players. Free beta, plays in your browser.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://play.vitalinsights.com.au/">
+    <meta property="og:url" content="https://play.theconquest.com.au/">
     <meta property="og:title" content="The Conquest">
     <meta property="og:description" content="A strategy board game for 1 to 6 players. Free beta, plays in your browser.">
-    <meta property="og:image" content="https://play.vitalinsights.com.au/icons/share.png">
+    <meta property="og:image" content="https://play.theconquest.com.au/icons/share.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
@@ -120,10 +120,11 @@
         updateBannerVisibility();
       }
 
-      // Build files are hosted on Cloudflare R2 (cdn.vitalinsights.com.au), not
+      // Build files are hosted on Cloudflare R2 (cdn.theconquest.com.au since 24/11/2026; the old
+      // cdn.vitalinsights.com.au serves the same bucket and stays up for old pages), not
       // GitHub Pages: WebGL.data outgrew GitHub Pages' Git-LFS serving ceiling
       // (150MB+, consistent 503 on every fresh fetch) — see CLAUDE.md 29/08/2026.
-      var buildUrl = "https://cdn.vitalinsights.com.au/Build";
+      var buildUrl = "https://cdn.theconquest.com.au/Build";
       // Loader sempre fresco (26/09/2026): o navegador reaproveitava um WebGL.loader.js antigo
       // do cache HTTP (sem o descompressor) contra arquivos novos comprimidos — "Failed to parse
       // binary data file ... still gzip-compressed". O resto passa pelo cache do Unity, que
@@ -331,6 +332,10 @@
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (j) {
             var u = j && j.buildUrl;
+            // Ponteiros escritos antes da troca de domínio (24/11/2026) citam o CDN antigo: o mesmo bucket,
+            // então troca só o prefixo pelo endereço novo em vez de cair no Build/ plano.
+            var legacy = "https://cdn.vitalinsights.com.au/Build/";
+            if (typeof u === "string" && u.indexOf(legacy) === 0) u = buildUrl + "/" + u.substring(legacy.length);
             return (typeof u === "string" && u.indexOf(buildUrl + "/") === 0) ? u.replace(/\/+$/, "") : null;
           })
           .catch(function () { return null; });
