@@ -313,9 +313,11 @@
       } else {
         // Ponteiro de versão (29/10/2026): o WebGL release (publish) sobe cada build numa pasta própria
         // Build/<versão>/ e aponta Build/current.json pra ela; o rollback só reescreve o ponteiro. Sem
-        // ponteiro, ponteiro quebrado, lento (5 s) ou fora do nosso CDN, carrega o Build/ plano de sempre.
+        // ponteiro, ponteiro quebrado, lento (15 s) ou fora do nosso CDN: tela de erro com "tentar de novo".
+        // O Build/ plano antigo foi apagado do R2 (27/11/2026: só os builds que importam, num lugar só).
         conquestBuildPointer().then(function (base) {
-          if (base) {
+          if (!base) { conquestFail("Network: failed to load Build/current.json"); return; }
+          {
             buildUrl = base;
             loaderUrl = base + "/WebGL.loader.js?v=" + Date.now();
             config.dataUrl = base + "/WebGL.data";
@@ -327,7 +329,7 @@
       }
 
       function conquestBuildPointer() {
-        var slow = new Promise(function (resolve) { setTimeout(function () { resolve(null); }, 5000); });
+        var slow = new Promise(function (resolve) { setTimeout(function () { resolve(null); }, 15000); });
         var pointer = fetch(buildUrl + "/current.json?t=" + Date.now(), { cache: "no-store" })
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (j) {
